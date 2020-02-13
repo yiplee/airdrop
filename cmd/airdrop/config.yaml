@@ -1,0 +1,16 @@
+db:
+  dialect:
+  host:
+  read_host:
+  port:
+  user:
+  password:
+  database:
+
+wallet:
+  endpoint:
+  broker_id:
+  broker_secret:
+  pin_secret:
+  user_id:
+  pin:

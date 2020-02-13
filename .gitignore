@@ -140,3 +140,10 @@ Temporary Items
 .apdisk
 
 # End of https://www.gitignore.io/api/go,macos,intellij
+airdrop-engine/cmd/root.go
+airdrop-engine/cmd/user.go
+airdrop-engine/main.go
+airdrop-server/cmd/
+airdrop-server/config.yaml
+airdrop-server/config/config.go
+airdrop-server/main.go
