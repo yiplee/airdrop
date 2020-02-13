@@ -39,32 +39,37 @@ func (handler *taskHandler) generateTaskFromReq(req *pb.CreateTaskReq) (*task.Ta
 	}
 
 	if !govalidator.IsUUID(t.TraceID) {
-		return nil, twirp.InvalidArgumentError("trace_id", "trace_id must be uuid")
+		return nil, twirp.InvalidArgumentError("trace_id", "must be uuid")
 	}
 
 	if !govalidator.IsUUID(t.AssetID) {
-		return nil, twirp.InvalidArgumentError("asset_id", "asset_id must be uuid")
+		return nil, twirp.InvalidArgumentError("asset_id", "must be uuid")
 	}
 
 	if len(t.Memo) > 140 {
-		return nil, twirp.InvalidArgumentError("memo", "length of memo must be less than 140")
+		return nil, twirp.InvalidArgumentError("memo", "must be less than 140")
 	}
 
 	for _, target := range req.Targets {
-		t.Targets = append(t.Targets, task.Target{
+		target := task.Target{
 			UserID: target.UserId,
 			Memo:   target.Memo,
 			Amount: number.Decimal(target.Amount),
-		})
+		}
+
+		if err := target.Validate(); err != nil {
+			return nil, twirp.InvalidArgumentError("targets", err.Error())
+		}
+
+		t.Amount = t.Amount.Add(target.Amount)
+		t.Targets = append(t.Targets, target)
 	}
 
-	if len(t.Targets) > handler.targetLimit {
+	if len(t.Targets) == 0 {
+		return nil, twirp.RequiredArgumentError("targets")
+	} else if len(t.Targets) > handler.targetLimit {
 		msg := fmt.Sprintf("count of targets must be less than %d", handler.targetLimit)
 		return nil, twirp.InvalidArgumentError("targets", msg)
-	}
-
-	if err := t.Targets.Validate(); err != nil {
-		return nil, twirp.InvalidArgumentError("targets", err.Error())
 	}
 
 	t.BrokerID = handler.brokerID

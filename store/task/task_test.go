@@ -48,7 +48,7 @@ func TestTaskStore(t *testing.T) {
 	t.Run("query nonexistent task", func(t *testing.T) {
 		b, err := store.Find(ctx, uuid.New())
 		assert.Nil(t, b)
-		assert.True(t, db2.IsErrorNotFound(err))
+		assert.Nil(t, err)
 	})
 
 	t.Run("update task", func(t *testing.T) {

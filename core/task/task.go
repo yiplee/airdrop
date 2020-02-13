@@ -2,7 +2,6 @@ package task
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/asaskevich/govalidator"
@@ -25,7 +24,7 @@ type (
 		AssetID   string          `gorm:"size:36" json:"asset_id,omitempty"`
 		Amount    decimal.Decimal `gorm:"type:DECIMAL(64,8)" json:"amount,omitempty"`
 		Memo      string          `gorm:"size:140" json:"memo,omitempty"`
-		Targets   Targets         `gorm:"type:TEXT" json:"targets,omitempty"`
+		Targets   Targets         `gorm:"type:BLOB" json:"targets,omitempty"`
 	}
 
 	Target struct {
@@ -44,24 +43,6 @@ func (t Target) Validate() error {
 
 	if !t.Amount.IsPositive() {
 		return errInvalidTargetAmount
-	}
-
-	return nil
-}
-
-func (targets Targets) Validate() error {
-	users := make(map[string]bool)
-
-	for _, target := range targets {
-		if err := target.Validate(); err != nil {
-			return fmt.Errorf("target %s is invalid: %w", target.UserID, err)
-		}
-
-		if users[target.UserID] {
-			return fmt.Errorf("duplicated target with id %s", target.UserID)
-		}
-
-		users[target.UserID] = true
 	}
 
 	return nil

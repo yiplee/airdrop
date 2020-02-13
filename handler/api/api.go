@@ -10,7 +10,7 @@ import (
 func Handle(twirpHandler http.Handler) http.Handler {
 	r := chi.NewRouter()
 
-	r.Route("tasks", func(r chi.Router) {
+	r.Route("/tasks", func(r chi.Router) {
 		r.HandleFunc("/", Twirp(twirpHandler, TwirpOpts{
 			PathPrefix: pb.TaskServicePathPrefix,
 			Method:     "Create",

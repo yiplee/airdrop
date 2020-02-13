@@ -50,7 +50,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig, initLogger)
+	cobra.OnInitialize(initLogger, initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.airdrop-engine.yaml)")
 	rootCmd.PersistentFlags().BoolVar(&enableDebug, "debug", false, "enable debug mode")
@@ -77,7 +77,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		logrus.Debugln("Using config file:", viper.ConfigFileUsed())
 	}
 
 	if err := config.Load("", &cfg); err != nil {

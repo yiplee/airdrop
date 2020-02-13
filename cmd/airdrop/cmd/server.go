@@ -41,7 +41,7 @@ var serverCmd = &cobra.Command{
 
 		srv := &http.Server{
 			Addr: addr,
-			Handler: handler.Handle(
+			Handler: handler.Route(
 				tasks,
 				handler.Config{
 					TargetLimit: cfg.Task.MaxTargets,
@@ -67,6 +67,7 @@ var serverCmd = &cobra.Command{
 			close(done)
 		})
 
+		logrus.Println("serve at", addr)
 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 			logrus.WithError(err).Fatal("server aborted")
 		}

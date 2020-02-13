@@ -20,7 +20,7 @@ type Config struct {
 	Debug       bool
 }
 
-func Handle(tasks task.Store, cfg Config) http.Handler {
+func Route(tasks task.Store, cfg Config) http.Handler {
 	if _, err := govalidator.ValidateStruct(cfg); err != nil {
 		panic(err)
 	}
@@ -30,23 +30,27 @@ func Handle(tasks task.Store, cfg Config) http.Handler {
 	r.Use(cors.AllowAll().Handler)
 	r.Use(middleware.Logger)
 
-	hook := &twirp.ServerHooks{}
-	servers := []pb.TwirpServer{
-		// task service
-		pb.NewTaskServiceServer(
-			taskhandler.New(tasks, cfg.TargetLimit, cfg.BrokerID),
-			hook,
-		),
-	}
+	rpcHandler := r.Group(func(r chi.Router) {
+		hook := &twirp.ServerHooks{}
+		servers := []pb.TwirpServer{
+			// task service
+			pb.NewTaskServiceServer(
+				taskhandler.New(tasks, cfg.TargetLimit, cfg.BrokerID),
+				hook,
+			),
+		}
 
-	for _, server := range servers {
-		r.Mount(server.PathPrefix(), server)
-	}
+		for _, server := range servers {
+			r.Mount(server.PathPrefix(), server)
+		}
+	})
 
-	r.Mount("api", api.Handle(r))
+	r.Mount("/twirp", rpcHandler)
+	r.Mount("/api", api.Handle(rpcHandler))
 
 	if cfg.Debug {
-		r.Mount("debug", middleware.Profiler())
+		r.Mount("/debug", middleware.Profiler())
+		api.ResponseErrorMessageAsHint = true
 	}
 
 	return r
