@@ -10,12 +10,9 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi"
-	"github.com/twitchtv/twirp"
 )
 
-// custom code in error meta
-const CustomCode = "custom_code"
-
+// Response internal error msg as hint
 var ResponseErrorMessageAsHint bool
 
 // Twirp modify the request and redirect to rpc handler
@@ -35,10 +32,6 @@ func Twirp(handler http.Handler, opt TwirpOpts) http.HandlerFunc {
 	}
 }
 
-func defaultTransformerFn(key, value string) interface{} {
-	return value
-}
-
 type TwirpOpts struct {
 	PathPrefix string
 	Method     string
@@ -46,9 +39,11 @@ type TwirpOpts struct {
 	TransformFn func(key, value string) interface{}
 }
 
+func defaultTransformFn(_, value string) interface{} { return value }
+
 func (opt TwirpOpts) repackRequest(r *http.Request) {
 	if opt.TransformFn == nil {
-		opt.TransformFn = defaultTransformerFn
+		opt.TransformFn = defaultTransformFn
 	}
 
 	forms := make(map[string]interface{})
@@ -76,26 +71,6 @@ func (opt TwirpOpts) repackRequest(r *http.Request) {
 	r.URL.RawQuery = ""
 	r.URL.Path = path.Join(opt.PathPrefix, opt.Method)
 	r.Header.Set("Content-Type", "application/json")
-}
-
-type twirpErr struct {
-	Code string            `json:"code,omitempty"`
-	Msg  string            `json:"msg,omitempty"`
-	Meta map[string]string `json:"meta,omitempty"`
-}
-
-func (err twirpErr) customCode() int {
-	if err.Meta == nil {
-		return 0
-	}
-
-	v, ok := err.Meta[CustomCode]
-	if !ok {
-		return 0
-	}
-
-	code, _ := strconv.Atoi(v)
-	return code
 }
 
 type wrapResponse struct {
@@ -133,10 +108,13 @@ func (w *wrapResponse) Write(body []byte) (int, error) {
 	}
 }
 
+type dataResponse struct {
+	Data json.RawMessage `json:"data,omitempty"`
+}
+
 func (w *wrapResponse) writeData(body []byte) (int, error) {
-	b, err := json.Marshal(struct {
-		Data json.RawMessage `json:"data,omitempty"`
-	}{Data: body})
+	r := dataResponse{Data: body}
+	b, err := json.Marshal(r)
 	if err != nil {
 		return 0, err
 	}
@@ -144,25 +122,22 @@ func (w *wrapResponse) writeData(body []byte) (int, error) {
 	return w.finalWrite(b)
 }
 
+type errorResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Hint string `json:"hint,omitempty"`
+}
+
 func (w *wrapResponse) writeErr(body []byte) (int, error) {
 	var twerr twirpErr
 	_ = json.Unmarshal(body, &twerr)
 
-	var r struct {
-		Code int    `json:"code"`
-		Msg  string `json:"msg"`
-		Hint string `json:"hint,omitempty"`
+	r := errorResponse{
+		Code: twerr.displayCode(),
+		Msg:  twerr.displayMsg(),
 	}
 
-	if code := twerr.customCode(); code > 0 {
-		r.Code = code
-		r.Msg = twerr.Msg
-	} else {
-		r.Code = twirp.ServerHTTPStatusFromErrorCode(twirp.ErrorCode(twerr.Code))
-		r.Msg = http.StatusText(r.Code)
-	}
-
-	if ResponseErrorMessageAsHint {
+	if ResponseErrorMessageAsHint && r.Msg != twerr.Msg {
 		r.Hint = twerr.Msg
 	}
 
