@@ -19,7 +19,8 @@ paths:
     post:
       tags:
         - task
-      description: create a new task
+      summary: create a new task
+      description: return a new task
       parameters:
         - name: body
           in: body
