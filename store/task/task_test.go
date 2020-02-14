@@ -9,7 +9,7 @@ import (
 	db2 "github.com/fox-one/pkg/store/db"
 	"github.com/fox-one/pkg/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/yiplee/airdrop/core/task"
+	"github.com/yiplee/airdrop/pkg/task"
 )
 
 func TestTaskStore(t *testing.T) {

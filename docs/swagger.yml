@@ -1,0 +1,61 @@
+swagger: "2.0"
+info:
+  version: 0.0.1
+  title: airdrop api by fox.one
+  description: fox.one airdrop
+host: airdrop.fox.one
+basePath: /api
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: task
+    description: task api
+schemes:
+  - https
+paths:
+  /tasks:
+    post:
+      description: create a new task
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            required:
+              - trace_id
+              - asset_id
+            properties:
+              trace_id:
+                type: string
+                format: uuid
+                description: unique tarce id for task
+              asset_id:
+                type: string
+                format: uuid
+                description: asset id
+              memo:
+                type: string
+                description: 不能超过 140 字
+              targets:
+                type: array
+                items:
+                  type: object
+                  description: 不能超过一千个，不能有重复 user_id
+                  properties:
+                    user_id:
+                      type: string
+                      format: uuid
+                    amount:
+                      type: string
+                      format: decimal
+                    memo:
+                      type: string
+                      description: 不能超过 140 字
+
+      responses:
+        200:
+          description: ok
+
+

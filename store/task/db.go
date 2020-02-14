@@ -2,7 +2,7 @@ package taskstore
 
 import (
 	"github.com/fox-one/pkg/store/db"
-	"github.com/yiplee/airdrop/core/task"
+	"github.com/yiplee/airdrop/pkg/task"
 )
 
 func init() {

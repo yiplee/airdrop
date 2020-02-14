@@ -1,8 +1,8 @@
 package views
 
 import (
-	"github.com/yiplee/airdrop/core/task"
 	"github.com/yiplee/airdrop/handler/pb"
+	"github.com/yiplee/airdrop/pkg/task"
 )
 
 func Target(t task.Target) *pb.Target {

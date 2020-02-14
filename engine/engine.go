@@ -9,7 +9,7 @@ import (
 	"github.com/fox-one/pkg/number"
 	"github.com/fox-one/pkg/property"
 	"github.com/fox-one/pkg/uuid"
-	"github.com/yiplee/airdrop/core/task"
+	"github.com/yiplee/airdrop/pkg/task"
 )
 
 const checkpointKey = "airdrop_poll_snapshots_checkpoint"
@@ -81,7 +81,9 @@ func (e Engine) run(ctx context.Context) error {
 			return err
 		}
 
-		return e.handleTask(ctx, t)
+		if err := e.handleTask(ctx, t); err != nil {
+			return err
+		}
 	}
 
 	if cursor != v.String() {
@@ -110,8 +112,16 @@ func (e Engine) handleTask(ctx context.Context, t *task.Task) error {
 
 		_, err := e.Broker.Transfer(ctx, e.UserID, e.Pin, req)
 		if err != nil {
-			log.WithError(err).Errorf("transfer to %s failed: %w", req.OpponentID, err)
-			return err
+			log.WithError(err).Errorf("transfer to %s failed", req.OpponentID)
+
+			switch err {
+			case sdk.ErrInvalidTrace:
+				continue
+			case sdk.ErrInvalidRequest:
+				continue
+			default:
+				return err
+			}
 		}
 	}
 
@@ -127,7 +137,7 @@ func (e Engine) refund(ctx context.Context, snapshot *sdk.Snapshot) error {
 		OpponentID: snapshot.OpponentID,
 		Amount:     snapshot.Amount,
 		TraceID:    uuid.Modify(snapshot.SnapshotID, snapshot.TraceID),
-		Memo:       "refund by memo",
+		Memo:       "refund by airdrop",
 	})
 
 	if err != nil {

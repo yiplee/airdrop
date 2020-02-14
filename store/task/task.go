@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/fox-one/pkg/store/db"
-	"github.com/yiplee/airdrop/core/task"
+	"github.com/yiplee/airdrop/pkg/task"
 )
 
 func New(db *db.DB) task.Store {

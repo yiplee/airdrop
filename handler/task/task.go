@@ -8,9 +8,9 @@ import (
 	"github.com/fox-one/pkg/logger"
 	"github.com/fox-one/pkg/number"
 	"github.com/twitchtv/twirp"
-	"github.com/yiplee/airdrop/core/task"
 	"github.com/yiplee/airdrop/handler/pb"
 	"github.com/yiplee/airdrop/handler/views"
+	"github.com/yiplee/airdrop/pkg/task"
 )
 
 func New(

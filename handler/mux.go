@@ -8,10 +8,10 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/rs/cors"
 	"github.com/twitchtv/twirp"
-	"github.com/yiplee/airdrop/core/task"
 	"github.com/yiplee/airdrop/handler/api"
 	"github.com/yiplee/airdrop/handler/pb"
 	taskhandler "github.com/yiplee/airdrop/handler/task"
+	"github.com/yiplee/airdrop/pkg/task"
 )
 
 type Config struct {

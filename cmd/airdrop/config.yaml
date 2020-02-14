@@ -14,3 +14,6 @@ wallet:
   pin_secret:
   user_id:
   pin:
+
+task:
+  max_targets: 500
