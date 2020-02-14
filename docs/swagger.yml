@@ -17,6 +17,8 @@ schemes:
 paths:
   /tasks:
     post:
+      tags:
+        - task
       description: create a new task
       parameters:
         - name: body
@@ -52,6 +54,7 @@ paths:
                       format: decimal
                     memo:
                       type: string
+                      maxLength: 140
                       description: 不能超过 140 字
 
       responses:
