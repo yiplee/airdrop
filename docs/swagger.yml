@@ -14,8 +14,21 @@ tags:
     description: task api
 schemes:
   - https
+  - http
+
+parameters:
+  AuthTokenHeader:
+    name: Authorization
+    type: string
+    format: Bearer
+    in: header
+    required: true
+    default: Bearer
+
 paths:
   /tasks:
+    parameters:
+      - $ref: '#/parameters/AuthTokenHeader'
     post:
       tags:
         - task

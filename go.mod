@@ -8,6 +8,7 @@ require (
 	github.com/fox-one/fox-wallet-sdk v0.0.4
 	github.com/fox-one/pkg v1.3.0
 	github.com/go-chi/chi v4.0.3+incompatible
+	github.com/golang/mock v1.2.0
 	github.com/golang/protobuf v1.3.3
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/mitchellh/go-homedir v1.1.0
